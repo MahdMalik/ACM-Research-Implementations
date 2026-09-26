@@ -20,18 +20,9 @@ if SCASP is None:
 print(f"s(CASP): {SCASP}")
 print(f"Prolog file: {rules_file}")
 
-def run_scasp(query: str):
-    query_file = os.path.join(current_dir, "run_temp.pl")
-    with open(rules_file) as rules_src, \
-         open(facts_temp_file) as facts_src, \
-         open(query_file, "w") as dst:
-        dst.write(rules_src.read())
-        dst.write("\n")
-        dst.write(facts_src.read())
-        dst.write(f"\n?- {query}.\n")
-
+def run_scasp():
     result = subprocess.run(
-        ["scasp", "-s1", query_file],
+        ["scasp", "-s1", "mainQuery.pl"],
         capture_output=True,
         text=True,
         timeout=30
@@ -70,7 +61,9 @@ async def handler(socket):
                     factsFile.flush()  # make sure facts are on disk before scasp reads them
 
                     startTime = time.time()
-                    rawOutput = run_scasp("chosen_action(X)")
+
+                    rawOutput = run_scasp()
+                    
                     endTime = time.time()
 
                     rtt = 0.95 * rtt + 0.05 * (endTime - startTime)
